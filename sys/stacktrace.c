@@ -4,6 +4,9 @@
 #include <kernel.h>
 #include <proc.h>
 #include <stdio.h>
+#include <lab0.h>
+
+extern unsigned long ctr1000;
 
 static inline unsigned long read_esp(void) {
     unsigned long v;
@@ -26,6 +29,11 @@ SYSCALL stacktrace(int pid)
 {
 	struct pentry	*proc = &proctab[pid];
 	unsigned long	*sp, *fp;
+	unsigned long start_time, end_time;
+
+	if (syscall_trace_flag) {
+		start_time = ctr1000;
+	}
 
 	if (pid != 0 && isbadpid(pid))
 		return SYSERR;
@@ -58,5 +66,13 @@ SYSCALL stacktrace(int pid)
 		return SYSERR;
 	}
 #endif
+
+	if (syscall_trace_flag) {
+		end_time = ctr1000;
+		unsigned long duration = end_time - start_time;
+		syscall_table[currpid].syscalls[SYSCALL_STACKTRACE].syscall_count++;
+		syscall_table[currpid].syscalls[SYSCALL_STACKTRACE].total_time += duration;
+	}
+	
 	return OK;
 }

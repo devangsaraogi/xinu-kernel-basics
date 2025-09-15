@@ -1,26 +1,36 @@
+/* test.c - main */
+
 #include <conf.h>
 #include <kernel.h>
 #include <proc.h>
 #include <stdio.h>
+#include <lab0.h>
+
+int prX;
+void halt();
 
 /*------------------------------------------------------------------------
- *  main  --  user main program
- *------------------------------------------------------------------------
- */
+*  main  --  user main program
+*------------------------------------------------------------------------
+*/
+void prch(char c)
+{
+    int i;
+    sleep(5);	
+}
 int main()
 {
-	kprintf("\n\nHello CSC 501\n\n");
+    kprintf("Task 1 (zfunction)\n");
+    kprintf("0xaabbccdd => 0x%lx\n", zfunction(0xaabbccdd));
 
-	kprintf("\n\nTask 1: ZFunction\n\n");
+    kprintf("Task 2 (printprocstks)\n");
+    printprocstks(10);
 
-	long param = 0xaabbccdd;
-	kprintf("Param: 0x%lx\n", param);
-	kprintf("Expected Result: 0xbbc00dff\n");
-	long result = zfunction(param);
-	kprintf("ZFunction Return: 0x%lx\n", result);
-
-	kprintf("\n\nTask 2: Stack Trace\n\n");
-	printprocstks(0);
-
-	return 0;
+    kprintf("Task 3 (printsyscallsummary)\n");
+    syscallsummary_start();        
+    resume(prX = create(prch,2000,20,"proc X",1,'A'));
+    sleep(10);
+    syscallsummary_stop();
+    printsyscallsummary();
+    return 0;
 }

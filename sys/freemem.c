@@ -4,6 +4,9 @@
 #include <kernel.h>
 #include <mem.h>
 #include <stdio.h>
+#include <lab0.h>
+
+extern unsigned long ctr1000;
 
 /*------------------------------------------------------------------------
  *  freemem  --  free a memory block, returning it to memlist
@@ -11,9 +14,14 @@
  */
 SYSCALL	freemem(struct mblock *block, unsigned size)
 {
-	STATWORD ps;    
+	STATWORD ps;
+	unsigned long start_time, end_time;
 	struct	mblock	*p, *q;
 	unsigned top;
+
+	if (syscall_trace_flag) {
+		start_time = ctr1000;
+	}
 
 	if (size==0 || (unsigned)block>(unsigned)maxaddr
 	    || ((unsigned)block)<((unsigned) &end))
@@ -42,5 +50,13 @@ SYSCALL	freemem(struct mblock *block, unsigned size)
 		q->mnext = p->mnext;
 	}
 	restore(ps);
+
+	if (syscall_trace_flag) {
+		end_time = ctr1000;
+		unsigned long duration = end_time - start_time;
+		syscall_table[currpid].syscalls[SYSCALL_FREEMEM].syscall_count++;
+		syscall_table[currpid].syscalls[SYSCALL_FREEMEM].total_time += duration;
+	}
+
 	return(OK);
 }

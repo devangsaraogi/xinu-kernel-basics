@@ -6,6 +6,8 @@
 #include <q.h>
 #include <sleep.h>
 #include <stdio.h>
+#include <lab0.h>
+extern unsigned long ctr1000;
 
 /*------------------------------------------------------------------------
  * sleep1000 --  delay the caller for a time specified in 1/100 of seconds
@@ -14,6 +16,10 @@
 SYSCALL sleep1000(int n)
 {
 	STATWORD ps;    
+	unsigned long start_time, end_time;
+	if (syscall_trace_flag) {
+		start_time = ctr1000;
+	}
 
 	if (n < 0  || clkruns==0)
 	         return(SYSERR);
@@ -27,6 +33,14 @@ SYSCALL sleep1000(int n)
 		proctab[currpid].pstate = PRSLEEP;
 	}
 	resched();
-        restore(ps);
+    restore(ps);
+
+	if (syscall_trace_flag) {
+		end_time = ctr1000;
+		unsigned long duration = end_time - start_time;
+		syscall_table[currpid].syscalls[SYSCALL_SLEEP1000].syscall_count++;
+		syscall_table[currpid].syscalls[SYSCALL_SLEEP1000].total_time += duration;
+	}
+	
 	return(OK);
 }
