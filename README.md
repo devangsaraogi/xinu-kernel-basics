@@ -1,262 +1,136 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/bvsWAkGr)
-# Project 1: Getting Acquainted with XINU
+# XINU Kernel Basics
 
-## 1. Objective
-The objective of this introductory lab is to familiarize you with the process of compiling and running XINU, the tools involved, and the run-time environment.
+## Overview
+Introduction to XINU operating system kernel programming, implementing low-level x86 assembly operations, process stack inspection, and system call tracing with statistical tracking across 27 system calls.
 
-## 2. Setup Guide
-XINU is a small Unix-like operating system originally developed by Douglas Comer for instructional purposes at Purdue University. It is small enough so that we can understand it entirely within one semester. As part of lab assignments, we will re-implement or improve some aspects of XINU.
+## Key Features
+- **Assembly Programming**: Bitwise operations implemented entirely in x86 assembly (`zfunction`)
+- **Process Stack Analysis**: Inspection and reporting of process stack information including base, limit, size, and pointer
+- **System Call Tracing**: Comprehensive tracking of 27 system calls with frequency counts and average execution time per process
+- **Statistical Analysis**: Start/stop tracing mechanism with per-process syscall summaries
+- **LTTng-inspired Design**: Loosely based on Linux Trace Toolkit Next Generation functionality
 
-- Step 1: Setting up a development environment:
+## Files Modified/Created
 
-    We are going to use a customized VCL image -- XINU+QEMU (CSC501) -- through the [VCL](http://vcl.ncsu.edu/) facility.
+### Created Files
+- [`h/lab0.h`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/h/lab0.h) - Header file exposing task functions
+- [`sys/zfunction.S`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/zfunction.S) - Task 1: x86 assembly bitwise operations
+- [`sys/printprocstks.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/printprocstks.c) - Task 2: Process stack information display
+- [`sys/printsyscallsummary.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/printsyscallsummary.c) - Task 3: System call tracing and summary (includes `syscallsummary_start()` and `syscallsummary_stop()`)
 
-- Step 2: Clone the project repository:
-    
-    1. Change to a working directory you would like to use for this project. Because you will be using a VCL VM, you want to store your files on some storage that is permanent and accessible from other VM instances. You can use [ncsudrive](https://oit.ncsu.edu/file-space/ncsu-drive/). It is already mounted on your VCL VM: `/mnt/ncsudrive/__first_letter_of_your_unity_id__/__your_unity_id__/`. If your unity ID is `xinurocks`, your ncsudrive is mounted at `/mnt/ncsudrive/x/xinurocks`. 
-        ```shell
-        cd /mnt/ncsudrive/__first_letter_of_your_unity_id__/__your_unity_id__/
-        ```
-        If you do not have an ncsudrive already, you'll need to log into remote.eos.ncsu.edu to create the drive. This will prompt you for any further steps and notify you once the directory is created. Once completed, you can log out with no further necessary action.
-        ```shell
-        ssh __your_unity_id__@remote.eos.ncsu.edu
-        ```
+### Modified Files (27 System Calls)
+All system calls modified to add tracing hooks:
+- [`sys/freemem.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/freemem.c), [`sys/chprio.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/chprio.c), [`sys/getpid.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/getpid.c), [`sys/getprio.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/getprio.c), [`sys/gettime.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/gettime.c)
+- [`sys/kill.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/kill.c), [`sys/receive.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/receive.c), [`sys/recvclr.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/recvclr.c), [`sys/recvtim.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/recvtim.c), [`sys/resume.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/resume.c)
+- [`sys/scount.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/scount.c), [`sys/sdelete.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/sdelete.c), [`sys/send.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/send.c), [`sys/setdev.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/setdev.c), [`sys/setnok.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/setnok.c)
+- [`sys/screate.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/screate.c), [`sys/signal.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/signal.c), [`sys/signaln.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/signaln.c), [`sys/sleep.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/sleep.c), [`sys/sleep10.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/sleep10.c)
+- [`sys/sleep100.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/sleep100.c), [`sys/sleep1000.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/sleep1000.c), [`sys/sreset.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/sreset.c), [`sys/stacktrace.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/stacktrace.c), [`sys/suspend.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/suspend.c)
+- [`sys/unsleep.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/unsleep.c), [`sys/wait.c`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/wait.c)
 
-    2. Clone this repository in your working directory. 
-        ```shell
-        git clone https://github.com/.....
-        ```
-        Go to the project directory. The subdirectories under this repository contain source code, header files, etc, for XINU.
+### Build Configuration
+- [`compile/Makefile`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/compile/Makefile) - Added new source files to build
 
-- Step 3: Building XINU
+## How to Build and Run
 
-    To compile the XINU kernel, run `make` in the `compile` directory as follows:
+### Build
+```bash
+cd compile
+make depend  # First time only or after Makefile changes
+make
+```
 
-    ```shell
-    cd compile
-    make depend
-    make
-    ```
-    This creates an OS image called `xinu.elf`.
+This creates the XINU kernel image `xinu.elf`.
 
-    The `make depend` directive configures some necessary information for compiling the project with the `make` command. Typically you will only need to run `make depend` the first time you build the project or when modifying the Makefile, such as adding new files.
+### Run
+```bash
+cd compile
+make run
+```
 
-- Step 4: Running and debugging XINU
+To exit QEMU: Press `Ctrl-a` then `c`, then type `q` at the (qemu) prompt.
 
-    The XINU image runs on the QEMU emulator machines. To boot up the image, type:
-    ```shell
-    make run
-    ```
-    XINU should start running and print messages.
+### Debug
+In one terminal:
+```bash
+cd compile
+make debug
+```
 
-    Typing `Ctrl-a` then `c` (not `Ctrl-c`, make sure you release the `Ctrl` key) will always bring you to "(qemu)" prompt. From there, you can quit by typing `q`.
+In another terminal:
+```bash
+gdb xinu.elf
+(gdb) target remote localhost:1234
+(gdb) b main
+(gdb) c
+```
 
-    To debug XINU, run the image in the **debug mode** by:
-    ```shell
-    make debug
-    ```
-    Then execute GDB in **another ssh session**:
-    ```shell
-    gdb xinu.elf
-    ```
-    In the (gdb) console, connect to the remote server by:
-    ```shell
-    target remote localhost:1234
-    ```
-    You can use many debugging features provided by GDB, e.g., adding a break point at the main function:
-    ```shell
-    b main
-    ```
-    To run to the next breakpoint, type:
-    ```shell
-    c
-    ```
-    The detailed document for GDB can be found [here](https://www.sourceware.org/gdb).
+### Clean
+```bash
+cd compile
+make clean
+```
 
-## 3. Readings
+## Expected Results
 
-- AT&T assembly information specific to the GNU assembler is available [here](http://en.wikibooks.org/wiki/X86_Assembly/GAS_Syntax) as a wikibook.
-- [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200)
-- Any man pages/manuals you discover that you need.
+### Task 1: `zfunction()`
+```
+Task 1 (zfunction)
+0xaabbccdd => 0xbbc00dff
+```
 
+**Operations performed:**
+- Clear bits 20-27 (counting from left, starting at 0)
+- Shift left by 8 bits
+- Fill rightmost 8 bits with 1s
 
-## 4. Tasks
+### Task 2: `printprocstks()`
+```
+Task 2 (printprocstks)
+Process [main]
+    pid: 49
+    priority: 20
+    base: 0x00ff0ff0
+    limit: 0x00ffffff
+    len: 4096
+    pointer: 0x00ffff33
+```
 
-You are asked to write several XINU functions that perform the following tasks:
+Displays stack information for all processes with priority greater than the specified parameter.
 
-1. `long zfunction(long param)`
+### Task 3: `printsyscallsummary()`
+```
+Task 3 (printsyscallsummary)
+Process [pid:49]
+    Syscall: sys_sleep, count: 1, average execution time: 5000 (ms)
+```
 
-    This function performs a number of operations on the parameter `param` and then returns it. These operations are:
-    - Clear the 20th to 27th bits, counting from the left starting with 0.
-    - Shift by 8 bits to the left.
-    - Fill the right-most 8 bits with 1s.
-    
-    For example, the input parameter `0xaabbccdd` should generate a return value of `0xbbc00dff`. You can assume that the size of long is 4 bytes. **The code for this function must be entirely written in x86 assembly**. Behavior implemented in a C file will not be accepted. You should not use inline assembly, (i.e., do not use asm(???)). To investigate the assembly code generated by the compiler, you can use the tool `objdump -d <___.o>` to disassemble an object file. The object files reside in the [compile](compile) directory within the main Xinu directory. You can also see some of the *.S files in the [sys](sys) directory for reference. You are free to write a C file of the behavior to get familiar with the behavior and generating assembly, but ensure that you do not submit a C file and that your header file links to the assembly file.
+Shows frequency and average execution time of all traced system calls, grouped by process.
 
-   To ensure that the assembly file behaves properly, you must ensure that it is a *.S file (capital S) rather than a *.s file (lowercase S). Additionally, if you use objdump, you must ensure that you do it on same type of machine that Xinu will be running on because assembly is not portable. In this case, make sure you do all of this on the XINU+QEMU VCL VM.
+## Notes/Assumptions
+- **Assembly requirement**: `zfunction()` must be written entirely in x86 assembly (`.S` file, not inline assembly)
+- **Stack pointer access**: Uses inline assembly to read `%esp` register for current process
+- **Time measurement**: Uses global variable [`ctr1000`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/sys/clkinit.c) (millisecond counter)
+- **Process table**: Accesses [`proctab[]`](https://github.com/devangsaraogi/xinu-kernel-basics/blob/main/h/proc.h) array for process information
+- **System calls traced**: 27 out of 43 declared system calls
+- **Tracing window**: Only syscalls between `syscallsummary_start()` and `syscallsummary_stop()` are recorded
+- **Process tracking**: Includes terminated processes in the summary
+- **Main.c warning**: Test programs should not be in `main.c` as it will be replaced during grading
+- **Debug output**: Must be disabled before submission
 
-3. `void printprocstks(int priority)`
+## Development Environment
+- **Platform**: XINU+QEMU VCL image (CSC501)
+- **Storage**: NC State Drive (`/mnt/ncsudrive/`)
+- **Architecture**: x86 (32-bit)
+- **Assembler**: GNU Assembler (AT&T syntax)
+- **Debugger**: GDB with remote target support
 
-    For each existing process (i.e., non-free processes) with larger priority than the parameter, print the stack base, stack size, stacklimit, and stack pointer. Also, for each of these processes, include the process name, the process id and the process priority.
+## Acknowledgments
 
-    To help you do this, please look into [h/proc.h](h/proc.h). Note the `proctab[]` array that holds all processes. Also, note that the `pesp` member of the `pentry` structure holds the saved stack pointer. Therefore, the currently executing process has a stack pointer that is different from the value of this variable. In order to help you get the stack pointer of the currently executing process, carefully study the [sys/stacktrace.c](sys/stacktrace.c) file. The register `%esp` holds the current stack pointer. You can use in-line assembly(i.e., `asm("...")`) to do this part.
+This project was completed as part of the graduate-level Operating Systems course (Fall 2025), **CSC 501: Operating Systems Principles**, at North Carolina State University, instructed by **Prof. Man-Ki Yoon**.
 
-4. `void printsyscallsummary()`
-
-    Print the summary of the system calls which have been invoked for each process. This task is loosely based on the functionality of [LTTng](http://lttng.org/). There are 43 system calls declared. Please look into [h/kernel.h](h/kernel.h) to see all declared system calls. However, only 27 system calls are implemented in this XINU version. You will need to trace these system calls:    
-    ```c    
-    SYSCALL	freemem(struct mblock *block, unsigned size);
-    SYSCALL chprio(int pid, int newprio);
-    SYSCALL getpid();
-    SYSCALL getprio(int pid);
-    SYSCALL	gettime(long *timvar);
-    SYSCALL kill(int pid);
-    SYSCALL	receive();
-    SYSCALL	recvclr();
-    SYSCALL	recvtim(int maxwait);
-    SYSCALL resume(int pid);
-    SYSCALL scount(int sem);
-    SYSCALL sdelete(int sem);
-    SYSCALL	send(int pid, WORD msg);
-    SYSCALL	setdev(int pid, int dev1, int dev2);
-    SYSCALL	setnok(int nok, int pid);
-    SYSCALL screate(int count);
-    SYSCALL signal(int sem);
-    SYSCALL signaln(int sem, int count);
-    SYSCALL	sleep(int n);
-    SYSCALL	sleep10(int n);
-    SYSCALL sleep100(int n);
-    SYSCALL sleep1000(int n);
-    SYSCALL sreset(int sem, int count);
-    SYSCALL stacktrace(int pid);
-    SYSCALL	suspend(int pid);
-    SYSCALL	unsleep(int pid);
-    SYSCALL	wait(int sem);
-    ```
-    The implementation of these 27 system calls are in the [sys](sys) directory. You are asked to print the frequency (how many times each system call type is invoked) and the average execution time (how long it takes to execute each system call type on average) of these 27 system calls for each process. In order to do this, you will need to modify the implementation of these 27 types of system calls to trace them whenever they are invoked. To measure the time, XINU provides a global variable named `ctr1000` to track the time (in milliseconds) passed by since the system starts. Please look into [sys/clkinit.c](sys/clkinit.c) and [sys/clkint.S](sys/clkint.S) to see the details.
-
-    The output of this function should group the system calls by the process that called them. See the sample output further down in the readme for an example of this. It must also display recorded information all processes that were active during the tracing period, including processes that terminated prior to calling printsyscallsummary.
-
-    You will also need to implement two other functions:
-
-    - `void syscallsummary_start()`: to start tracing the system calls. This function first clears all statistical numbers. All the system calls are invoked after calling this function (and before calling `syscallsummary_stop()`) will be presented in the system call summary.
-
-    - `void syscallsummary_stop()`: to stop tracing the system calls. 
-    
-    In other words, these two functions determine the duration in which the system calls are traced.
-
-    To help you complete this task, we provide `test.c` (below) that demonstrates the usage of the functions you will implement (note that this is only the test file and will not be used for grading).
-    ```c
-    /* test.c - main */
-
-    #include <conf.h>
-    #include <kernel.h>
-    #include <proc.h>
-    #include <stdio.h>
-    #include <lab0.h>
-
-    int prX;
-    void halt();
-
-    /*------------------------------------------------------------------------
-    *  main  --  user main program
-    *------------------------------------------------------------------------
-    */
-    void prch(char c)
-    {
-        int i;
-        sleep(5);	
-    }
-    int main()
-    {
-        kprintf("Task 1 (zfunction)\n");
-        kprintf("0xaabbccdd => %d\n", zfunction(0xaabbccdd));
-
-        kprintf("Task 2 (printprocstks)\n");
-        printprocstks(10);
-    
-        kprintf("Task 3 (printsyscallsummary)\n");
-        syscallsummary_start();        
-        resume(prX = create(prch,2000,20,"proc X",1,'A'));
-        sleep(10);
-        syscallsummary_stop();
-        printsyscallsummary();
-        return 0;
-    }
-    ```
-
-    Implement this lab as a set of functions that can be called from `main()`. Each function should reside in a separate file in the [sys](sys/) directory, and should be incorporated into the [Makefile](compile/Makefile) in the [compile](compile/) directory. The files should be named after the functions they are implementing with C files having the `.c` extension and the assembly files having the `.S` extension. For example, the file that will hold `long zfunction(long param)` should be named `zfunction.S`. You should put `syscallsummary_start`, `syscallsummary_stop` functions in the same file as `printsyscallsummary` function and name it as `printsyscallsummary.c`. Expose the functions in a header file nameed `lab0.h` and placed in the in the [h](h/) directory. 
-    
-    **Note**: as you create new files, you may need to update the [Makefile](compile/Makefile) (located in the [compile](compile/) directory) to configure it to compile your files correctly. Just look at what is done for the existing files (e.g., `main.c`) to see what you have to do.
-
-## 5. Turn-in Instructions
-1. Preparation
-
-    - Make sure your output follows the output template shown below, as much as possible. For task 2, the exact values of the base, limit, and pointer do not need to be identical, but they should be reasonably similar. Significant divergence may be a sign of an incorrect implementation.
-        ```
-        Task 1 (zfunction)
-        0xaabbccdd => 0xbbc00dff
-        
-        Task 2 (printprocstks)
-        Process [main]
-            pid: 49
-            priority: 20
-            base: 0x00ff0ff0
-            limit: 0x00ffffff
-            len: 4096
-            pointer: 0x00ffff33
-
-        Task 3 (printsyscallsummary)
-        Process [pid:49]
-            Syscall: sys_sleep, count: 1, average execution time: 5000 (ms)
-        ```
-
-    - You can write code in [main.c](sys/main.c) to test your procedures, but please note that when we test your programs we will replace the main.c file! Therefore, do not put any functionality in the main.c file.
-
-    - Also, ALL debugging output MUST be turned off before you submit your code.
-
-2. Submission
-
-    We use `git` for assignment submission. Familiarize yourself with git commands. Useful references: [link1](https://education.github.com/git-cheat-sheet-education.pdf), [link2](https://www.atlassian.com/git/glossary). 
-
-    - Go to the [compile](compile/) directory and do `make clean`.
-
-    - Add new files to your repository using `git add filepath` command. Example: `git add sys/zfunction.S` 
-
-    - Check if all the necessary changes have been staged by using `git status`. If there are issues with the .gitignore file excluding files you have modified, contact the instructor or TA to resolve the issues.
-
-    - Then, commit and push:
-        ```shell
-        git commit -am 'Done'
-        git push
-        ```
-        You can do commit and push whenever you want, but the final submission must be committed/pushed with the message `Done`. For a final check, go to your repository using a web browser, and check if your changes have been pushed.
-
-## 6. FAQ
-
-- Q) In task 2, do we need to account for pid reuse?
-    - A) No, we will not be generating enough processes for this to be a concern.
-- Q) Does the formmatting need to follow the example output exactly?
-    - A) As long as it's easy for the graders to read, any formatting is fine.
-- Q) Does printsyscallsummary need to account for syscalls that begin before printsyscallsummary_start or end after printsyscallsummary_end?
-    - A) You don't need to handle this. All tests will start syscalls after printsyscallsummary_start and allow them to finish before printsyscallsummary_end.
-- Q) Can I modify X file?
-    - A) Yes, you are free to modify any files as you see fit. The only requirement is that none of your logic be in the main.c file as we will be replacing that with our test main file.
-- Q) Do I need to comment my code?
-    - A) Comments are not necessary.
-- Q) What if I’m getting a variable undefined error when trying to use ctr1000?
-    - A) Look at sleep.c for an example of how other locations in Xinu use it.
-- Q) Will there be tests for space and time complexity?
-    - A) Largely no. If a particular test stalls for a significant amount of time, we may terminate it and potentially deduct points depending on the reason for the stall. But in general, we are only concerned with correctness and not performance.
-- Q) Is coding style a factor? Are we expected to implement behavior in a certain way?
-    - A) Typically, no. If the behavior is correct for all test cases and your changes don’t break existing code, you will receive full credit. Coding style and implementation only becomes a factor when determining partial credit and only in the sense that approaches that seem highly likely to introduce potential for breaking changes will receive less partial credit than approaches that are less likely to introduce such risks.
-
-
-## 7. Grading Policy
-
-- (15%) Sounce code can compile and generate the image as bootable. 5 points are allocated for each of the three tasks.
-
-- (10%) Absence of breaking changes. These are changes that change the behavior of existing functionality in ways that were not specified.
-
-- (75%) 25 points for each task (losing points on minor problems).
-
+## Additional Resources
+- See [ASSIGNMENT.md](ASSIGNMENT.md) for complete project specification
+- [XINU Source Documentation](https://github.com/devangsaraogi/xinu-kernel-basics)
+- [AT&T Assembly Syntax](http://en.wikibooks.org/wiki/X86_Assembly/GAS_Syntax)
+- [Intel 64 and IA-32 Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200)
+- [GDB Documentation](https://www.sourceware.org/gdb)
